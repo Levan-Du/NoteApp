@@ -4,11 +4,15 @@ import {
     Text,
     TouchableOpacity,
     StyleSheet,
-    Dimensions
+    Dimensions,
+    Alert
 } from 'react-native';
+
+import { MenuButton, MoreButton } from '../Button';
 
 export default class TopBar extends Component {
     static defaultProps = {
+        title: 'title',
         containerStyle: {
             height: 40,
             padding: 5,
@@ -16,7 +20,12 @@ export default class TopBar extends Component {
             flexDirection: 'row',
             justifyContent: 'space-between',
             alignItems: 'center'
-        }
+        },
+        textStyle: { color: '#fff' },
+        menuClick: (e) => {},
+        moreClick: (e) => {},
+        leftIconStyle: { marginRight: 0 },
+        rightIconStyle: { marginRight: 0 }
     }
 
     constructor(props) {
@@ -24,15 +33,12 @@ export default class TopBar extends Component {
     }
 
     render() {
-        var { containerStyle } = this.props;
+        var { containerStyle, title, textStyle, menuClick, moreClick, leftIconStyle, rightIconStyle } = this.props;
         return (
             <View style={containerStyle}>
-            	<TouchableOpacity>
-            		<Text>侧边栏</Text>
-            	</TouchableOpacity>  	
-            	<TouchableOpacity>
-            		<Text>下拉菜单</Text>
-            	</TouchableOpacity>
+                <MenuButton iconStyle={leftIconStyle} onPress={menuClick} />
+                <Text style={textStyle}>{title}</Text>
+                <MoreButton iconStyle={rightIconStyle} onPress={moreClick} />
             </View>
         );
     }
