@@ -5,7 +5,8 @@ import {
     Button,
     Dimensions,
     Alert,
-    StyleSheet
+    StyleSheet,
+    Animated
 } from 'react-native';
 
 import styles from './style.android';
@@ -18,76 +19,91 @@ var _sidebarLeft = -(width * .8);
 export default class SideBar extends Component {
     constructor(props) {
         super(props);
-        this.state = {
-            containerStyle0: [styles.container],
-            sidebarStyle0: [styles.sidebar],
-            maskStyle: styles.mask,
-            startX: 0,
-            moveX: 0
-        };
+        this.state = {};
+        this.onClickOn = false;
         this.onTouchMove = this.onTouchMove.bind(this);
         this.onTouchStart = this.onTouchStart.bind(this);
         this.onTouchEnd = this.onTouchEnd.bind(this);
+
+        this.onMaskClickOn = false;
+        this.onMaskTouchStart = this.onMaskTouchStart.bind(this);
+        this.onMaskTouchMove = this.onMaskTouchMove.bind(this);
+        this.onMaskTouchEnd = this.onMaskTouchEnd.bind(this);
+
+        this.startX = 0;
+        this.moveX = 0;
     }
 
     onTouchStart(e) {
-        var { locationX, locationY, pageX, pageY, timestamp } = e.nativeEvent;
-        if (locationX > width * 0.8) {
-            this.props.resetStyleLeft();
-        }
-        this.setState((prevState, props) => ({
-            startX: locationX
-        }));
+        this.onClickOn = true;
     }
 
     onTouchMove(e) {
-        var { locationX, locationY, pageX, pageY, timestamp } = e.nativeEvent;
-        this.setState((prevState, props) => {
-            var mx = locationX - prevState.startX;
-            console.log(mx);
-            if (locationX < width * 0.8) {
-                this.props.changeStyleLeft(mx);
-            }
-            return {
-                startX: locationX,
-                moveX: mx
-            };
-        });
+        this.onClickOn = false;
+
     }
 
     onTouchEnd(e) {
+        if (this.onClickOn) {
+
+        }
+    }
+
+    onMaskTouchStart(e) {
+        this.onMaskClickOn = true;
+
         var { locationX, locationY, pageX, pageY, timestamp } = e.nativeEvent;
-        this.setState((prevState, props) => {
-            var mx = locationX - prevState.startX;
-            return {
-                startX: 0,
-                moveX: mx
-            };
-        });
+        this.startX = locationX;
+        console.log(locationX);
+    }
+    onMaskTouchMove(e) {
+        this.onMaskClickOn = false;
+
+        var { locationX, locationY, pageX, pageY, timestamp } = e.nativeEvent;
+        console.log(locationX);
+        this.moveX = locationX - this.startX;
+        var moveLeft = this.props.sideBarStyle.sideBarLeft + this.moveX;
+        this.props.changeStyleLeft(moveLeft);
+    }
+    
+    onMaskTouchEnd(e) {
+        if (this.onMaskClickOn) {
+            this.props.resetStyleLeft(_sidebarLeft);
+        }
+    }
+
+    componentDidMount() {
+
     }
 
     render() {
-        var { containerStyle0, sidebarStyle0, maskStyle } = this.state;
         var { containerLeft, sideBarLeft } = this.props.sideBarStyle;
-        console.log(containerLeft, sideBarLeft);
-        var containerLeftStyle = containerLeft ? { left: containerLeft } : { left: _containerLeft },
-            sidebarLeftStyle = sideBarLeft ? { left: sideBarLeft } : { left: _sidebarLeft };
+        // console.log(containerLeft, sideBarLeft);
+        var containerLeftStyle = typeof(parseInt(containerLeft)) === 'number' ? { left: containerLeft } : { left: _containerLeft },
+            sidebarLeftStyle = typeof(parseInt(sideBarLeft)) === 'number' ? { left: sideBarLeft } : { left: _sidebarLeft };
+
+        // console.log(containerLeftStyle, sidebarLeftStyle);
 
         return (
-            <View style={[containerStyle0,containerLeftStyle]}
-            		onStartShouldSetResponder={(e) => true}
-            		onMoveShouldSetResponder={(e) => true}
-            		onResponderMove={this.onTouchMove}
-            		onResponderStart={this.onTouchStart}
-            		onResponderRelease={this.onTouchEnd}>
+            <View style={[styles.container,containerLeftStyle]}
+                    /*onStartShouldSetResponder={(e) => true}
+                    onMoveShouldSetResponder={(e) => true}
+                    onResponderStart={this.onTouchStart}
+                    onResponderMove={this.onTouchMove}
+                    onResponderRelease={this.onTouchEnd}*/>
 
-				<View style={[sidebarStyle0,sidebarLeftStyle]}>
+                <View style={[styles.sidebar,sidebarLeftStyle]}>
 
-				</View>
-				<View style={maskStyle}>
-					
-				</View>
-			</View>
+                </View>
+                <View style={styles.mask}
+                        onStartShouldSetResponder={(e) => true}
+                        onMoveShouldSetResponder={(e) => true}
+                        onResponderStart={this.onMaskTouchStart}
+                        onResponderMove={this.onMaskTouchMove}
+                        onResponderRelease={this.onMaskTouchEnd}>
+                    
+                </View>
+            </View>
         );
     }
 }

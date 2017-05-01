@@ -32,6 +32,32 @@ export default class NoteApp extends Component {
         this.TopBar_moreClick = this.TopBar_moreClick.bind(this);
         this.resetSideBarStyleLeft = this.resetSideBarStyleLeft.bind(this);
         this.changeSideBarStyleLeft = this.changeSideBarStyleLeft.bind(this);
+
+        this.onClickOn = false;
+        this.onTouchStart = this.onTouchStart.bind(this);
+        this.onTouchMove = this.onTouchMove.bind(this);
+        this.onTouchEnd = this.onTouchEnd.bind(this);
+    }
+
+    onTouchStart(e) {
+        this.onClickOn = true;
+        if (e.nativeEvent.locationX < 10) {
+            this.setState({
+                sideBarStyle: {
+                    containerLeft: 0,
+                    sideBarLeft: SideBar.sideBarLeft + 20
+                }
+            });
+        }
+    }
+
+    onTouchMove(e) {
+        this.onClickOn = false;
+    }
+    onTouchEnd(e) {
+        if (this.onClickOn) {
+            this.resetSideBarStyleLeft();
+        }
     }
 
     TopBar_menuClick(e) {
@@ -50,8 +76,8 @@ export default class NoteApp extends Component {
     resetSideBarStyleLeft() {
         this.setState({
             sideBarStyle: {
-                containerLeft: 0,
-                sideBarLeft: 0
+                containerLeft: SideBar.containerLeft,
+                sideBarLeft: SideBar.sideBarLeft
             }
         });
     }
@@ -69,7 +95,13 @@ export default class NoteApp extends Component {
     render() {
         var { sideBarStyle, sideBarContainerStyle } = this.state;
         return (
-            <View style={styles.container}>
+            <View style={styles.container}
+                    onStartShouldSetResponder={(e) => true}
+                    onMoveShouldSetResponder={(e) => true}
+                    onResponderStart={this.onTouchStart}
+                    onResponderMove={this.onTouchMove}
+                    onResponderRelease={this.onTouchEnd}>
+
                 <SideBar sideBarStyle={sideBarStyle}
                         resetStyleLeft={this.resetSideBarStyleLeft} 
                         changeStyleLeft={this.changeSideBarStyleLeft}
